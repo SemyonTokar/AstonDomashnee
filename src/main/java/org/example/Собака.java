@@ -7,7 +7,8 @@ public class Собака extends Животное {
         super(name, 500, 10, true);
         dogCount++;
     }
-    public static int getDogCount(){
+
+    public static int getDogCount() {
         return dogCount;
     }
 

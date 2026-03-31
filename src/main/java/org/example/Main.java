@@ -1,7 +1,7 @@
 package org.example;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         System.out.println("Животные");
         Собака dog1 = new Собака("Жук");
         Собака dog2 = new Собака("Дружок");
@@ -23,8 +23,8 @@ public class Main {
         Миска bowl = new Миска(10);
         Кот[] cats = {cat1, cat2};
 
-        for (Кот cat : cats){
-            cat.Покушать(bowl,20);
+        for (Кот cat : cats) {
+            cat.Покушать(bowl, 20);
         }
     }
 }

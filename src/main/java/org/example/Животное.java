@@ -8,7 +8,7 @@ public class Животное {
 
     protected static int animalCount = 0;
 
-    public Животное (String name, int runLimit, int swimLimit, boolean canSwim) {
+    public Животное(String name, int runLimit, int swimLimit, boolean canSwim) {
         this.name = name;
         this.runLimit = runLimit;
         this.swimLimit = swimLimit;

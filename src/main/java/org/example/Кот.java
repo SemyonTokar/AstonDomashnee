@@ -18,7 +18,12 @@ public class Кот extends Животное {
         }
     }
 
-    public boolean isFull(){return isFull;}
-    public static int getCatCount(){return catCount;}
+    public boolean isFull() {
+        return isFull;
+    }
+
+    public static int getCatCount() {
+        return catCount;
+    }
 
 }
