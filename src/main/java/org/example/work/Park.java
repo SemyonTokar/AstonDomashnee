@@ -21,6 +21,8 @@ public class Park {
         }
 
         public void displayInfo(){
+            System.out.println("Парк: " + namePark);
+            System.out.println("Город: " + city);
             System.out.println("Аттракцион: " + name );
             System.out.println("Время работы: " + timeWork);
             System.out.println("Стоимость: " + price + " руб.");
