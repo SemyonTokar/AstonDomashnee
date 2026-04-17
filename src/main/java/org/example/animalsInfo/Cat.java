@@ -1,16 +1,16 @@
-package org.example;
+package animalsInfo;
 
-public class Кот extends Животное {
+public class Cat extends Animals {
     private static int catCount = 0;
     private boolean isFull = false;
 
-    public Кот(String name) {
+    public Cat(String name) {
         super(name, 200, 0, false);
         catCount++;
     }
 
-    public void Покушать(Миска bowl, int amount) {
-        if (bowl.уменьшениеПитания(amount)) {
+    public void Eat(Bowl bowl, int amount) {
+        if (bowl.minusFood(amount)) {
             isFull = true;
             System.out.println(name + " Покушал и сыт");
         } else {

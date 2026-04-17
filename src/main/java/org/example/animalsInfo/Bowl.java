@@ -1,13 +1,13 @@
-package org.example;
+package animalsInfo;
 
-public class Миска {
+public class Bowl {
     private int foodAmount;
 
-    public Миска(int foodAmount) {
+    public Bowl(int foodAmount) {
         this.foodAmount = foodAmount;
     }
 
-    public boolean уменьшениеПитания(int amount) {
+    public boolean minusFood(int amount) {
         if (amount <= foodAmount) {
             foodAmount -= amount;
             return true;
@@ -15,7 +15,7 @@ public class Миска {
         return false;
     }
 
-    public void добавитьЕду(int amount) {
+    public void plusFood(int amount) {
         foodAmount += amount;
         System.out.println("Добавлено: " + amount + " еды. Всего: " + foodAmount);
     }

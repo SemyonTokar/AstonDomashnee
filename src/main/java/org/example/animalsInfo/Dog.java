@@ -1,9 +1,9 @@
-package org.example;
+package animalsInfo;
 
-public class Собака extends Животное {
+public class Dog extends Animals {
     private static int dogCount = 0;
 
-    public Собака(String name) {
+    public Dog(String name) {
         super(name, 500, 10, true);
         dogCount++;
     }

@@ -1,6 +1,6 @@
-package org.example;
+package animalsInfo;
 
-public class Животное {
+public class Animals {
     protected String name;
     protected int runLimit;
     protected int swimLimit;
@@ -8,7 +8,7 @@ public class Животное {
 
     protected static int animalCount = 0;
 
-    public Животное(String name, int runLimit, int swimLimit, boolean canSwim) {
+    public Animals(String name, int runLimit, int swimLimit, boolean canSwim) {
         this.name = name;
         this.runLimit = runLimit;
         this.swimLimit = swimLimit;
