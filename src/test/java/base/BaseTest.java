@@ -55,6 +55,9 @@ public class BaseTest {
     @AfterEach
     public void tearDown() {
         if (driver != null) {
+            try {
+                driver.switchTo().defaultContent();
+            } catch (Exception ignored) {}
             driver.quit();
         }
     }

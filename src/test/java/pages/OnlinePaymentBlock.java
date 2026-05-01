@@ -7,6 +7,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OnlinePaymentBlock {
 
@@ -14,9 +16,21 @@ public class OnlinePaymentBlock {
     private final WebDriverWait wait;
 
     private final By blockTitle = By.cssSelector(".pay__wrapper h2");
+
     private final By paySelectButton = By.cssSelector(".select__header");
     private final By selectOptions = By.cssSelector(".select__item");
     private final By activeOptionSpan = By.cssSelector(".select__now");
+
+    private final Map<String, String> formMap = new HashMap<>() {{
+        put("Услуги связи", "pay-connection");
+        put("Домашний интернет", "pay-internet");
+        put("Рассрочка", "pay-instalment");
+        put("Задолженность", "pay-arrears");
+    }};
+
+    private final By partnerLogos = By.cssSelector(".pay__partners img");
+
+    private final By detailsLink = By.cssSelector(".pay__wrapper a[href*='poryadok-oplaty']");
 
     public OnlinePaymentBlock(WebDriver driver) {
         this.driver = driver;
@@ -50,20 +64,90 @@ public class OnlinePaymentBlock {
         return form.findElement(By.id(fieldId)).getAttribute("placeholder");
     }
 
+    public Map<String, String> getAllPlaceholders(String formId) {
+        Map<String, String> placeholders = new HashMap<>();
+        WebElement form = driver.findElement(By.id(formId));
+        for (WebElement input : form.findElements(By.cssSelector("input:not([type='hidden'])"))) {
+            String fieldId = input.getAttribute("id");
+            String placeholder = input.getAttribute("placeholder");
+            if (fieldId != null && placeholder != null && !placeholder.isEmpty()) {
+                placeholders.put(fieldId, placeholder);
+            }
+        }
+        return placeholders;
+    }
+
     public boolean arePartnerLogosVisible() {
-        return !driver.findElements(By.cssSelector(".pay__partners img")).isEmpty();
+        return !driver.findElements(partnerLogos).isEmpty();
     }
 
     public String getLinkText() {
-        return driver.findElement(By.cssSelector(".pay__wrapper a[href*='poryadok-oplaty']")).getText();
+        return driver.findElement(detailsLink).getText();
     }
 
-    public void fillConnectionFormAndSubmit(String phoneNumber, String sum, String email) {
+    public void clickDetailsLink() {
+        driver.findElement(detailsLink).click();
+    }
+
+    public PaymentConfirmationWindow fillConnectionFormAndSubmit(String phoneNumber, String sum, String email) {
         openPaymentForm("Услуги связи");
+
         WebElement form = driver.findElement(By.id("pay-connection"));
-        form.findElement(By.id("connection-phone")).sendKeys(phoneNumber);
-        form.findElement(By.id("connection-sum")).sendKeys(sum);
-        form.findElement(By.id("connection-email")).sendKeys(email);
-        form.findElement(By.cssSelector("button[type='submit']")).click();
+
+        WebElement phoneInput = form.findElement(By.id("connection-phone"));
+        phoneInput.click();
+        phoneInput.clear();
+        phoneInput.sendKeys(phoneNumber);
+
+        WebElement sumInput = form.findElement(By.id("connection-sum"));
+        sumInput.click();
+        sumInput.clear();
+        sumInput.sendKeys(sum);
+
+        WebElement emailInput = form.findElement(By.id("connection-email"));
+        emailInput.click();
+        emailInput.clear();
+        emailInput.sendKeys(email);
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException ignored) {}
+
+        WebElement submitButton = form.findElement(By.cssSelector("button[type='submit']"));
+        submitButton.click();
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
+
+        switchToBepaidIframe();
+
+        return new PaymentConfirmationWindow(driver);
+    }
+
+    private void switchToBepaidIframe() {
+        try {
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(
+                    By.cssSelector("iframe[src*='bepaid'], iframe[src*='checkout']")
+            ));
+            System.out.println("=== Переключились в iframe bepaid ===");
+        } catch (Exception e) {
+
+            System.out.println("=== Iframe не найден, проверяем окна ===");
+            try {
+                String mainWindow = driver.getWindowHandle();
+                for (String handle : driver.getWindowHandles()) {
+                    if (!handle.equals(mainWindow)) {
+                        driver.switchTo().window(handle);
+                        if (driver.getCurrentUrl().contains("bepaid") || driver.getCurrentUrl().contains("checkout")) {
+                            System.out.println("=== Переключились в окно: " + driver.getCurrentUrl() + " ===");
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
     }
 }
