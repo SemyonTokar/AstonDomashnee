@@ -1,6 +1,7 @@
 package tests;
 
 import base.BaseTest;
+import io.qameta.allure.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,12 +13,17 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Epic("MTS.BY — Онлайн оплата")
+@Feature("Блок «Онлайн пополнение без комиссии»")
 public class OnlinePaymentBlockTests extends BaseTest {
 
     private final String URL = "https://www.mts.by";
 
     @Test
+    @Story("Отображение блока")
     @DisplayName("1. Проверка названия блока «Онлайн пополнение без комиссии»")
+    @Description("Убеждаемся, что заголовок блока содержит текст «Онлайн пополнение без комиссии»")
+    @Severity(SeverityLevel.BLOCKER)
     public void testBlockTitle() {
         openPage(URL);
         OnlinePaymentBlock paymentBlock = new OnlinePaymentBlock(driver);
@@ -27,7 +33,10 @@ public class OnlinePaymentBlockTests extends BaseTest {
     }
 
     @Test
+    @Story("Отображение блока")
     @DisplayName("2. Проверка наличия логотипов платёжных систем")
+    @Description("Проверяем, что логотипы Visa, MasterCard, Белкарт отображаются в блоке")
+    @Severity(SeverityLevel.NORMAL)
     public void testPartnerLogos() {
         openPage(URL);
         OnlinePaymentBlock paymentBlock = new OnlinePaymentBlock(driver);
@@ -36,7 +45,10 @@ public class OnlinePaymentBlockTests extends BaseTest {
     }
 
     @Test
+    @Story("Навигация")
     @DisplayName("3. Проверка работы ссылки «Подробнее о сервисе»")
+    @Description("Проверяем текст ссылки «Подробнее о сервисе»")
+    @Severity(SeverityLevel.MINOR)
     public void testDetailsLink() {
         openPage(URL);
         OnlinePaymentBlock paymentBlock = new OnlinePaymentBlock(driver);
@@ -46,7 +58,10 @@ public class OnlinePaymentBlockTests extends BaseTest {
     }
 
     @ParameterizedTest
+    @Story("Формы оплаты")
     @DisplayName("4. Проверка надписей в незаполненных полях для каждого варианта оплаты")
+    @Description("Параметризованная проверка placeholder-ов для всех форм оплаты")
+    @Severity(SeverityLevel.NORMAL)
     @CsvSource({
             "Услуги связи, pay-connection, connection-phone, Номер телефона",
             "Услуги связи, pay-connection, connection-sum, Сумма",
@@ -68,11 +83,15 @@ public class OnlinePaymentBlockTests extends BaseTest {
         paymentBlock.openPaymentForm(optionName);
         String actualPlaceholder = paymentBlock.getPlaceholderForField(formId, fieldId);
         assertEquals(expectedPlaceholder, actualPlaceholder,
-                "Placeholder для поля " + fieldId + " в форме \"" + optionName + "\" должен быть \"" + expectedPlaceholder + "\"");
+                "Placeholder для поля " + fieldId + " в форме \"" + optionName
+                        + "\" должен быть \"" + expectedPlaceholder + "\"");
     }
 
     @Test
-    @DisplayName("5. Заполнение формы «Услуги связи», нажатие «Продолжить» и проверка окна подтверждения")
+    @Story("Окно подтверждения оплаты")
+    @DisplayName("5. Заполнение формы «Услуги связи» и проверка окна подтверждения")
+    @Description("Заполняем форму, нажимаем «Продолжить» и проверяем сумму, номер и поля карты в iframe bepaid")
+    @Severity(SeverityLevel.CRITICAL)
     public void testConnectionPaymentConfirmationWindow() {
         openPage(URL);
         OnlinePaymentBlock paymentBlock = new OnlinePaymentBlock(driver);
@@ -80,35 +99,32 @@ public class OnlinePaymentBlockTests extends BaseTest {
         PaymentConfirmationWindow confirmation = paymentBlock.fillConnectionFormAndSubmit(
                 "297777777", "10", "test@test.com");
 
-        System.out.println("=== Текущий URL: " + driver.getCurrentUrl() + " ===");
-        System.out.println("=== Заголовок страницы: " + driver.getTitle() + " ===");
+        Allure.addAttachment("Текущий URL", driver.getCurrentUrl());
+        Allure.addAttachment("Заголовок страницы", driver.getTitle());
 
         String costText = confirmation.getAmountFromCost();
-        System.out.println("Сумма в описании: " + costText);
+        Allure.step("Сумма в описании: " + costText);
         assertFalse(costText.isEmpty(), "Сумма в описании не должна быть пустой");
         assertTrue(costText.contains("10"), "Ожидается 10 BYN, получено: " + costText);
 
         String buttonText = confirmation.getAmountFromButton();
-        System.out.println("Надпись на кнопке: " + buttonText);
+        Allure.step("Надпись на кнопке: " + buttonText);
         assertTrue(buttonText.contains("10"), "На кнопке ожидается 10 BYN, получено: " + buttonText);
 
         String descText = confirmation.getDescriptionText();
-        System.out.println("Описание заказа: " + descText);
-        assertTrue(descText.contains("297777777"), "В описании ожидается номер 297777777, получено: " + descText);
+        Allure.step("Описание заказа: " + descText);
+        assertTrue(descText.contains("297777777"),
+                "В описании ожидается номер 297777777, получено: " + descText);
 
         assertTrue(confirmation.areCardFieldsEmpty(), "Поля карты должны быть пустыми");
 
         Map<String, String> labels = confirmation.getCardFieldLabels();
-        System.out.println("Надписи полей карты: " + labels);
+        Allure.addAttachment("Надписи полей карты", labels.toString());
         assertFalse(labels.isEmpty(), "Должны быть найдены надписи полей карты");
 
-        assertTrue(confirmation.arePaymentIconsVisible(), "Иконки платёжных систем должны отображаться");
+        assertTrue(confirmation.arePaymentIconsVisible(),
+                "Иконки платёжных систем должны отображаться");
 
-        System.out.println("=== Итоги ===");
-        System.out.println("Сумма: " + costText);
-        System.out.println("Кнопка: " + buttonText);
-        System.out.println("Описание: " + descText);
-        System.out.println("Поля пустые: OK");
-        System.out.println("Иконки: OK");
+        takeScreenshot();
     }
 }

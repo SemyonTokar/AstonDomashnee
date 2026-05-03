@@ -1,10 +1,15 @@
 package base;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.qameta.allure.Attachment;
+import io.qameta.allure.junit5.AllureJunit5;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -14,6 +19,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+@ExtendWith(AllureJunit5.class)
 public class BaseTest {
 
     protected WebDriver driver;
@@ -48,8 +54,13 @@ public class BaseTest {
             acceptButton.click();
             wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("cookie-agree")));
         } catch (Exception e) {
-
+            // cookies not present
         }
+    }
+
+    @Attachment(value = "Screenshot on failure", type = "image/png")
+    public byte[] takeScreenshot() {
+        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
     }
 
     @AfterEach
